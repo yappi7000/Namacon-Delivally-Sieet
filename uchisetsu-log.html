@@ -1,0 +1,773 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>生コンデリバリー時間管理シート | Y'sサービス</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Noto+Sans+JP:wght@400;500;700;900&family=Roboto+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#F6F5F2;
+    --panel:#FFFFFF;
+    --ink:#1C1C1C;
+    --ink-soft:#5B5B57;
+    --line:#D9D6CE;
+    --orange:#E8590C;
+    --orange-deep:#B5430A;
+    --blue:#3E5468;
+    --green:#2F7D5E;
+    --dash-bg:#1C2228;
+    --dash-ink:#F4A24A;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--ink);
+    font-family:'Noto Sans JP', sans-serif;
+    -webkit-tap-highlight-color:transparent;
+    padding-bottom:60px;
+  }
+  header{
+    background:var(--ink);
+    color:#fff;
+    padding:14px 16px 12px;
+    position:sticky;
+    top:0;
+    z-index:20;
+    border-bottom:4px solid var(--orange);
+  }
+  header .brand{
+    font-family:'Oswald',sans-serif;
+    font-weight:700;
+    letter-spacing:0.03em;
+    font-size:23px;
+    line-height:1.25;
+    text-transform:uppercase;
+    display:block;
+  }
+  header .brand span{color:var(--orange);}
+  header .sub{font-size:12.5px;color:#E4E3DE;margin-top:5px;font-weight:500;letter-spacing:0.02em;}
+  header .sub .tel{color:var(--orange);font-family:'Roboto Mono',monospace;font-weight:700;}
+
+  .wrap{padding:14px;max-width:900px;margin:0 auto;}
+
+  .card{
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:10px;
+    padding:14px;
+    margin-bottom:14px;
+  }
+  .card h2{
+    font-family:'Oswald',sans-serif;
+    font-size:14px;
+    letter-spacing:0.06em;
+    text-transform:uppercase;
+    color:var(--blue);
+    margin:0 0 10px;
+    border-left:4px solid var(--orange);
+    padding-left:8px;
+  }
+
+  .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;}
+  .grid.g3{grid-template-columns:repeat(3,1fr);}
+  label{display:block;font-size:11px;color:var(--ink-soft);margin-bottom:3px;}
+  input[type=text],input[type=date],input[type=number]{
+    width:100%;
+    padding:8px 8px;
+    border:1px solid var(--line);
+    border-radius:6px;
+    font-size:14px;
+    font-family:inherit;
+    background:#fff;
+  }
+  input:focus{outline:2px solid var(--orange);outline-offset:1px;}
+
+  details summary{
+    cursor:pointer;
+    font-size:12px;
+    color:var(--blue);
+    font-weight:700;
+    padding:4px 0;
+  }
+  details[open] summary{margin-bottom:8px;}
+
+  /* dashboard readout */
+  .dash{
+    background:var(--dash-bg);
+    border-radius:10px;
+    padding:16px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    flex-wrap:wrap;
+    gap:12px;
+    margin-bottom:14px;
+  }
+  .dash .item{text-align:center;flex:1;min-width:90px;}
+  .dash .item .val{
+    font-family:'Roboto Mono',monospace;
+    font-weight:700;
+    font-size:26px;
+    color:var(--dash-ink);
+    line-height:1;
+  }
+  .dash .item .lbl{
+    font-size:10px;
+    color:#9AA3AC;
+    letter-spacing:0.06em;
+    margin-top:4px;
+    text-transform:uppercase;
+  }
+
+  /* table */
+  .tbl-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;}
+  table{border-collapse:collapse;width:100%;min-width:760px;}
+  th,td{border:1px solid var(--line);padding:4px;font-size:12px;text-align:center;}
+  th{
+    background:var(--blue);
+    color:#fff;
+    font-weight:500;
+    font-size:10.5px;
+    letter-spacing:0.02em;
+    position:sticky;
+    top:0;
+  }
+  td input{
+    border:none;
+    background:transparent;
+    text-align:center;
+    font-family:'Roboto Mono',monospace;
+    font-size:12.5px;
+    padding:4px 2px;
+    width:100%;
+  }
+  td input[type=text]{font-family:'Noto Sans JP',sans-serif;}
+  td.calc{
+    font-family:'Roboto Mono',monospace;
+    font-weight:700;
+    color:var(--orange-deep);
+    background:#FBF1E9;
+  }
+  tr:nth-child(even) td{background:#FAFAF8;}
+  tr:nth-child(even) td.calc{background:#F7EAE0;}
+  .rownum{font-family:'Oswald',sans-serif;font-weight:600;background:#EFEEE9;color:var(--ink-soft);}
+
+  .btnrow{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;}
+  button{
+    font-family:'Noto Sans JP',sans-serif;
+    font-weight:700;
+    font-size:13px;
+    border:none;
+    border-radius:7px;
+    padding:10px 14px;
+    cursor:pointer;
+  }
+  .btn-primary{background:var(--orange);color:#fff;}
+  .btn-primary:active{background:var(--orange-deep);}
+  .btn-outline{background:#fff;border:1px solid var(--blue);color:var(--blue);}
+  .btn-outline:active{background:#EEF1F4;}
+  .btn-green{background:var(--green);color:#fff;}
+
+  .hourly-grid{display:grid;grid-template-columns:1fr;gap:0;}
+  .hrow{
+    display:grid;
+    grid-template-columns:80px 1fr 60px;
+    align-items:center;
+    padding:5px 4px;
+    border-bottom:1px solid var(--line);
+    font-size:12px;
+  }
+  .hrow:last-child{border-bottom:none;}
+  .hrow .hlabel{font-family:'Roboto Mono',monospace;font-weight:700;color:var(--blue);font-size:11px;}
+  .hbar-bg{background:#EFEEE9;border-radius:4px;height:14px;position:relative;overflow:hidden;}
+  .hbar-fill{background:var(--orange);height:100%;border-radius:4px 0 0 4px;transition:width .2s;}
+  .hcount{text-align:right;font-family:'Roboto Mono',monospace;font-weight:700;}
+
+  textarea{
+    width:100%;
+    min-height:150px;
+    font-family:'Roboto Mono',monospace;
+    font-size:12px;
+    border:1px solid var(--line);
+    border-radius:6px;
+    padding:10px;
+    background:#FBFBF9;
+  }
+  .status{font-size:11px;color:var(--ink-soft);margin-top:6px;min-height:14px;}
+  .footer-note{font-size:10.5px;color:var(--ink-soft);text-align:center;margin-top:10px;line-height:1.6;}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand">生コンデリバリー<span>時間管理シート</span></div>
+  <div class="sub">Y'sサービス　なかた やすゆき　<span class="tel">☎ 070-8504-7979</span>　LINE ID: yappi8p</div>
+</header>
+
+<div class="wrap">
+
+  <div class="card">
+    <h2>現場情報</h2>
+    <div class="grid">
+      <div><label>日付</label><input type="date" id="f_date"></div>
+      <div><label>天候</label><input type="text" id="f_weather" placeholder="晴れ／曇り／雨"></div>
+      <div><label>現場名・打設箇所</label><input type="text" id="f_site" placeholder="例）〇〇邸 基礎"></div>
+      <div><label>工区・部位</label><input type="text" id="f_area" placeholder="基礎／躯体／スラブ／土間"></div>
+    </div>
+    <div class="grid" style="margin-top:8px;">
+      <div>
+        <label>ポンプ運用（同日2台稼働時のみ切替）</label>
+        <select id="f_pumpsheet">
+          <option value="">通常（ポンプ1台）</option>
+          <option value="1">ポンプ①だけ記録（別シート）</option>
+          <option value="2">ポンプ②だけ記録（別シート）</option>
+          <option value="mix">1枚で両ポンプ管理（行ごとにタグ付け）</option>
+        </select>
+      </div>
+    </div>
+    <div class="status" id="pumpModeNote" style="margin-top:4px;"></div>
+    <details style="margin-top:10px;">
+      <summary>打設詳細を入力（呼び強度・スランプなど）▾</summary>
+      <div class="grid g3">
+        <div><label>呼び強度</label><input type="text" id="f_strength"></div>
+        <div><label>スランプ/スランプフロー</label><input type="text" id="f_slump"></div>
+        <div><label>骨材寸法</label><input type="text" id="f_agg"></div>
+        <div><label>セメント種類</label>
+          <select id="f_cement">
+            <option value=""></option><option>N</option><option>M</option><option>BB</option><option>HB</option>
+          </select>
+        </div>
+        <div><label>高性能AE減水剤</label>
+          <select id="f_admixture"><option value=""></option><option>あり</option><option>なし</option></select>
+        </div>
+        <div><label>膨張材(ハイパー/CSA-S)</label>
+          <select id="f_expansive"><option value=""></option><option>あり</option><option>なし</option></select>
+        </div>
+        <div><label>予定数量(m3)</label><input type="number" id="f_planned" step="0.1"></div>
+        <div><label>待ちの数量(m3)</label><input type="number" id="f_waiting" step="0.1"></div>
+        <div><label>積み数(m3積/台)</label><input type="number" id="f_loadsize" step="0.1"></div>
+        <div><label>台数(台回り)</label><input type="text" id="f_rounds"></div>
+        <div><label>昼休憩</label><input type="text" id="f_lunch" placeholder="あり(60分)／なし"></div>
+        <div><label>現場担当者</label><input type="text" id="f_supervisor"></div>
+        <div><label>プラント</label><input type="text" id="f_plant"></div>
+        <div><label>試験員</label><input type="text" id="f_tester"></div>
+        <div><label>ポンプ</label><input type="text" id="f_pump"></div>
+        <div><label>施工業者名</label><input type="text" id="f_contractor"></div>
+        <div><label>販売店</label>
+          <select id="f_dealer">
+            <option value=""></option><option>三谷商事</option><option>鈴与</option><option>東海スミセ</option><option>TC</option><option>他</option>
+          </select>
+        </div>
+        <div><label>プラント〜現場 片道</label>
+          <div style="display:flex;gap:4px;">
+            <input type="number" id="f_distance_min" placeholder="分" style="width:50%;">
+            <input type="number" id="f_distance_km" placeholder="km" style="width:50%;">
+          </div>
+        </div>
+      </div>
+    </details>
+  </div>
+
+  <div class="card">
+    <h2>搬入基準（参考・JIS規格／標準仕様書）</h2>
+    <div style="font-size:12px;line-height:1.8;color:var(--ink-soft);">
+      荷下ろしまでの所要時間：外気温25°未満 <b style="color:var(--ink);">120分</b>／25°以上 <b style="color:var(--ink);">90分</b><br>
+      コンクリート打ち重ね時間：外気温25°以下 <b style="color:var(--ink);">150分</b>／25°超える <b style="color:var(--ink);">120分</b>
+    </div>
+  </div>
+
+  <div class="dash">
+    <div class="item"><div class="val" id="d_count">0</div><div class="lbl">台数</div></div>
+    <div class="item"><div class="val" id="d_m3">0.0</div><div class="lbl">打設量 m3</div></div>
+    <div class="item"><div class="val" id="d_pitch">0.0</div><div class="lbl">平均ピッチ m3/h</div></div>
+    <div class="item"><div class="val" id="d_elapsed">--:--</div><div class="lbl">経過時間</div></div>
+  </div>
+
+  <div class="card">
+    <h2>台数別 時間記録</h2>
+    <div class="tbl-scroll">
+      <table id="mainTable">
+        <thead>
+          <tr>
+            <th style="width:32px;">台数</th>
+            <th style="width:44px;" id="pumpColHead">ポンプ</th>
+            <th style="width:70px;">車番</th>
+            <th>a:工場発</th>
+            <th>b:現場着</th>
+            <th>c:打設開始</th>
+            <th>d:打設終了</th>
+            <th>d-a<br>所要</th>
+            <th>d-c<br>荷降し</th>
+            <th style="width:56px;">m3</th>
+            <th style="width:80px;">備考</th>
+          </tr>
+        </thead>
+        <tbody id="tbody"></tbody>
+      </table>
+    </div>
+    <div class="btnrow">
+      <button class="btn-outline" id="addRowBtn">＋ 行を追加（5行）</button>
+      <button class="btn-outline" id="clearBtn">全クリア</button>
+    </div>
+    <div class="status" style="margin-top:4px;">※ m3列は「打設詳細」の積み数から自動入力されます。最後の1台など調整したい行だけ直接書き換えればOK（以後その行は自動更新されません）。</div>
+    <div class="status" id="saveStatus"></div>
+  </div>
+
+  <div class="card">
+    <h2>1時間ごとの打設ペース（c:打設開始時刻で自動集計）</h2>
+    <div class="hourly-grid" id="hourlyGrid"></div>
+  </div>
+
+  <div class="card">
+    <h2>打設完了・確認</h2>
+    <div class="grid">
+      <div><label>打設総数量(伝票) 台数</label><input type="number" id="f_totalcount"></div>
+      <div><label>打設総数量(伝票) m3</label><input type="number" id="f_totalm3" step="0.1"></div>
+      <div><label>余りコン(m3位)</label><input type="number" id="f_leftover" step="0.1"></div>
+    </div>
+    <div style="display:flex;gap:18px;margin-top:10px;">
+      <label style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--ink);">
+        <input type="checkbox" id="f_precheck" style="width:18px;height:18px;">打設前確認 済
+      </label>
+      <label style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--ink);">
+        <input type="checkbox" id="f_slipsign" style="width:18px;height:18px;">伝票サイン 済
+      </label>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>進行記録</h2>
+    <div class="grid g3">
+      <div><label>朝礼時間</label><input type="time" id="f_asakurei"></div>
+      <div><label>打設スタート時間</label><input type="time" id="f_startstamp"></div>
+      <div><label>打設完了時間</label><input type="time" id="f_endstamp"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>次回打設予定</h2>
+    <div class="grid">
+      <div><label>次回 日時</label><input type="text" id="f_nextdate" placeholder="例）8/20(木) 9:00〜"></div>
+      <div><label>打設箇所</label><input type="text" id="f_nextsite"></div>
+      <div><label>担当営業</label><input type="text" id="f_nextsales"></div>
+      <div><label>プラント</label><input type="text" id="f_nextplant"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>次回打設に関する注意事項及び反省点</h2>
+    <div id="reviewGrid"></div>
+    <div style="margin-top:8px;">
+      <label>その他メモ</label>
+      <input type="text" id="f_reviewnote">
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>生コン打設に関するプラント（販売店）選定基準　10箇条</h2>
+    <div style="font-size:12px;line-height:1.9;color:var(--ink-soft);">
+      ①打設ピッチに対応できるプラント能力を有しているか？　プラント製造能力 m3/h<br>
+      ②打設において要望通りの生コン車を用意できるか？　1時間当たりの打設ピッチ+α(台数)<br>
+      ③プラントは現場から何分で到着できるか？　30分圏内が望ましい<br>
+      ④プラント及び営業の対応は満足できるか？　事前打ち合わせ及びトラブル対応<br>
+      ⑤生コンの品質は現場対応ができているか？　現場打設がスムーズに行くスランプなど<br>
+      ⑥打設日のデリバリーの対応は十分満足できるか？　管理や数量に関する把握<br>
+      ⑦デリバリーは生コンに関しての知識を持ち合わせているか？　コンクリート技士の有資格者<br>
+      ⑧毎回打設計画通りに「打設終了」できるか？他業者の配慮も考慮　終了時間＆ピッチ<br>
+      ⑨打ち合わせ段階でポンプ・土工と情報が共有できているか？　当日の周知会での打設前徹底<br>
+      ⑩過去の実績・評判等は満足いくプラントなのか？　ポンプ業者及び土工からのヒヤリング調査
+    </div>
+    <div style="font-size:12px;line-height:1.9;color:var(--ink-soft);margin-top:10px;">
+      生コンは規格(JIS規格)だが、プラントごとに品質特性(材料)がある。<br>
+      出荷対応・製品(材料)・試験員・車両台数・営業担当・デリバリーなどなど、<br>
+      ＊上記において何を最優先するか？で現場がスムーズにまわります。
+    </div>
+    <div style="font-size:12.5px;font-weight:700;color:var(--blue);margin-top:10px;line-height:1.8;">
+      現場・プラント・運転手が気持ちよく作業できるようなデリバリーを心がけています。<br>
+      真正面から真っ正直に真心をもって一生懸命！
+    </div>
+    <div style="font-size:10.5px;color:var(--ink-soft);margin-top:6px;">
+      ＊あくまでも個人的な見解なので、自己判断で納得のいくプラントを選定することをお勧めします。
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>監督・現場共有用サマリー</h2>
+    <textarea id="summaryText" readonly></textarea>
+    <div class="btnrow">
+      <button class="btn-primary" id="copyBtn">📋 コピーしてLINEで送る</button>
+      <button class="btn-green" id="refreshSummaryBtn">サマリー更新</button>
+    </div>
+    <div class="status" id="copyStatus"></div>
+  </div>
+
+  <div class="footer-note">
+    入力内容はこの端末に自動保存されます（日付ごと）。<br>
+    Y'sサービス（Aloha Labo）｜RC delivery請負
+  </div>
+</div>
+
+<script>
+const tbody = document.getElementById('tbody');
+const fields = ['date','weather','site','area','strength','slump','agg','cement','planned','supervisor',
+  'admixture','expansive','waiting','loadsize','rounds','lunch','plant','tester','pump','contractor','dealer',
+  'distance_min','distance_km','totalcount','totalm3','leftover',
+  'asakurei','startstamp','endstamp','nextdate','nextsite','nextsales','nextplant','reviewnote'];
+const checkFields = ['precheck','slipsign'];
+const reviewQuestions = [
+  '予定の終了時間に打設完了できたか？',
+  '打設ピッチに対応できる生コン車台数だったか？',
+  '満足できる生コン品質だったか？',
+  '打設事前打ち合わせは満足だったか？',
+  '担当営業マンの対応は良いか？',
+  '試験員の対応及び技量は？',
+  'デリバリーの対応及び満足度は？',
+  'プラントの出荷係の対応満足度は？',
+  '前回よりもスムーズに打設できたか？',
+];
+reviewQuestions.forEach((q,i)=>{ fields.push('r'+(i+1)); });
+let saveTimer = null;
+
+function buildReviewGrid(){
+  const grid = document.getElementById('reviewGrid');
+  grid.innerHTML = reviewQuestions.map((q,i)=>`
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;padding:7px 0;border-bottom:1px solid var(--line);font-size:12.5px;">
+      <span style="flex:1;">${i+1}. ${q}</span>
+      <select id="f_r${i+1}" style="width:90px;padding:6px;border:1px solid var(--line);border-radius:6px;">
+        <option value=""></option>
+        <option value="◎">◎ 満足</option>
+        <option value="○">○ 普通</option>
+        <option value="△">△ 要改善</option>
+      </select>
+    </div>
+  `).join('');
+}
+buildReviewGrid();
+
+function pad(n){return n.toString().padStart(2,'0');}
+function todayStr(){
+  const d = new Date();
+  return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());
+}
+function timeToMin(t){
+  if(!t) return null;
+  const [h,m] = t.split(':').map(Number);
+  return h*60+m;
+}
+function diffMin(t1,t2){
+  const a = timeToMin(t1), b = timeToMin(t2);
+  if(a===null||b===null) return null;
+  let d = b-a;
+  if(d<0) d += 24*60; // overnight wrap
+  return d;
+}
+function fmtMin(m){
+  if(m===null) return '';
+  const h = Math.floor(m/60), r = m%60;
+  return (h>0? h+'h':'') + pad(r)+'m';
+}
+
+function newRow(n){
+  const tr = document.createElement('tr');
+  tr.innerHTML = `
+    <td class="rownum">${n}</td>
+    <td><select class="c_pump"><option value="">-</option><option value="1">①</option><option value="2">②</option></select></td>
+    <td><input type="text" class="c_no"></td>
+    <td><input type="time" class="c_a"></td>
+    <td><input type="time" class="c_b"></td>
+    <td><input type="time" class="c_c"></td>
+    <td><input type="time" class="c_d"></td>
+    <td class="calc c_da"></td>
+    <td class="calc c_dc"></td>
+    <td><input type="number" step="0.1" class="c_m3"></td>
+    <td><input type="text" class="c_note"></td>
+  `;
+  tbody.appendChild(tr);
+  tr.querySelector('.c_pump').addEventListener('change', ()=>{ computeAll(); scheduleSave(); });
+  tr.querySelectorAll('input').forEach(inp=>{
+    if(inp.classList.contains('c_m3')){
+      inp.addEventListener('input', ()=>{ inp.dataset.source = 'manual'; computeAll(); scheduleSave(); });
+    } else {
+      inp.addEventListener('input', ()=>{ recalcRow(tr); computeAll(); scheduleSave(); });
+    }
+  });
+}
+
+function recalcRow(tr){
+  const a = tr.querySelector('.c_a').value;
+  const c = tr.querySelector('.c_c').value;
+  const d = tr.querySelector('.c_d').value;
+  tr.querySelector('.c_da').textContent = fmtMin(diffMin(a,d));
+  tr.querySelector('.c_dc').textContent = fmtMin(diffMin(c,d));
+}
+
+function addRows(count){
+  const n = tbody.children.length;
+  for(let i=1;i<=count;i++) newRow(n+i);
+}
+
+// 積み数(f_loadsize)を使って、各台のm3を自動入力する。
+// c_m3.dataset.source === 'manual' の行（ユーザーが直接編集した行＝最後の調整用）は上書きしない。
+function autoFillM3(){
+  const loadsize = parseFloat(document.getElementById('f_loadsize').value) || 0;
+  [...tbody.querySelectorAll('tr')].forEach(tr=>{
+    const m3input = tr.querySelector('.c_m3');
+    const c = tr.querySelector('.c_c').value;
+    const d = tr.querySelector('.c_d').value;
+    const no = tr.querySelector('.c_no').value;
+    const hasRowData = no || c || d;
+    if(m3input.dataset.source === 'manual') return;
+    if(hasRowData && loadsize>0){
+      m3input.value = loadsize;
+      m3input.dataset.source = 'auto';
+    }
+  });
+}
+
+function computeAll(){
+  autoFillM3();
+  const rows = [...tbody.querySelectorAll('tr')];
+  let m3sum = 0, count = 0;
+  let cTimes = [], dTimes = [];
+  const hourly = {};
+  for(let h=6; h<20; h++) hourly[h] = {cnt:0, m3:0};
+
+  rows.forEach(tr=>{
+    const c = tr.querySelector('.c_c').value;
+    const d = tr.querySelector('.c_d').value;
+    const m3 = parseFloat(tr.querySelector('.c_m3').value)||0;
+    const hasData = tr.querySelector('.c_no').value || c || d || m3;
+    if(!hasData) return;
+    count++;
+    m3sum += m3;
+    if(c){
+      cTimes.push(c);
+      const hr = parseInt(c.split(':')[0],10);
+      if(hourly[hr]!==undefined){ hourly[hr].cnt++; hourly[hr].m3 += m3; }
+    }
+    if(d) dTimes.push(d);
+  });
+
+  document.getElementById('d_count').textContent = count;
+  document.getElementById('d_m3').textContent = m3sum.toFixed(1);
+
+  let pitch = 0, elapsedStr = '--:--';
+  if(cTimes.length && dTimes.length){
+    cTimes.sort(); dTimes.sort();
+    const start = timeToMin(cTimes[0]);
+    const end = timeToMin(dTimes[dTimes.length-1]);
+    let span = end-start;
+    if(span<0) span += 24*60;
+    if(span>0){
+      pitch = m3sum / (span/60);
+      elapsedStr = fmtMin(span);
+    }
+  }
+  document.getElementById('d_pitch').textContent = pitch.toFixed(1);
+  document.getElementById('d_elapsed').textContent = elapsedStr;
+
+  // hourly bar chart
+  const grid = document.getElementById('hourlyGrid');
+  grid.innerHTML = '';
+  const maxCnt = Math.max(1, ...Object.values(hourly).map(h=>h.cnt));
+  for(let h=6; h<20; h++){
+    const data = hourly[h];
+    if(data.cnt===0 && count===0) continue;
+    const row = document.createElement('div');
+    row.className = 'hrow';
+    const pct = Math.round((data.cnt/maxCnt)*100);
+    row.innerHTML = `
+      <div class="hlabel">${pad(h)}:00</div>
+      <div class="hbar-bg"><div class="hbar-fill" style="width:${pct}%"></div></div>
+      <div class="hcount">${data.cnt}台 / ${data.m3.toFixed(1)}m3</div>
+    `;
+    grid.appendChild(row);
+  }
+}
+
+function buildSummary(){
+  const site = document.getElementById('f_site').value || '（現場名未入力）';
+  const area = document.getElementById('f_area').value;
+  const date = document.getElementById('f_date').value;
+  const weather = document.getElementById('f_weather').value;
+  const planned = document.getElementById('f_planned').value;
+  const count = document.getElementById('d_count').textContent;
+  const m3 = document.getElementById('d_m3').textContent;
+  const pitch = document.getElementById('d_pitch').textContent;
+  const elapsed = document.getElementById('d_elapsed').textContent;
+
+  const rows = [...tbody.querySelectorAll('tr')].filter(tr=>{
+    const c = tr.querySelector('.c_c').value, d = tr.querySelector('.c_d').value;
+    const no = tr.querySelector('.c_no').value;
+    return no || c || d;
+  });
+
+  let lines = [];
+  lines.push(`【打設状況】${site}${area? '（'+area+'）':''}`);
+  lines.push(`${date||''} ${weather? '天候:'+weather:''}`);
+  if(planned) lines.push(`予定数量: ${planned} m3`);
+  lines.push(`━━━━━━━━━━`);
+  lines.push(`現在 ${count}台 / ${m3}m3 打設済`);
+  lines.push(`経過 ${elapsed} ／ 平均ピッチ ${pitch} m3/h`);
+  const totalcount = document.getElementById('f_totalcount').value;
+  const totalm3 = document.getElementById('f_totalm3').value;
+  const leftover = document.getElementById('f_leftover').value;
+  if(totalcount || totalm3) lines.push(`打設総数量(伝票): ${totalcount||'-'}台 / ${totalm3||'-'}m3`);
+  if(leftover) lines.push(`余りコン: 約${leftover}m3`);
+  lines.push(`━━━━━━━━━━`);
+  rows.forEach(tr=>{
+    const no = tr.querySelector('.c_no').value || '-';
+    const c = tr.querySelector('.c_c').value || '--:--';
+    const d = tr.querySelector('.c_d').value || '--:--';
+    const dc = tr.querySelector('.c_dc').textContent;
+    const note = tr.querySelector('.c_note').value;
+    lines.push(`${no}号車  開始${c}→終了${d}  荷降し${dc||'-'}${note? '  ['+note+']':''}`);
+  });
+  document.getElementById('summaryText').value = lines.join('\n');
+}
+
+// ---- storage ----
+function collectData(){
+  return {
+    fields: Object.fromEntries(fields.map(f=>[f, document.getElementById('f_'+f).value])),
+    checks: Object.fromEntries(checkFields.map(f=>[f, document.getElementById('f_'+f).checked])),
+    rows: [...tbody.querySelectorAll('tr')].map(tr=>({
+      no: tr.querySelector('.c_no').value,
+      pump: tr.querySelector('.c_pump').value,
+      a: tr.querySelector('.c_a').value,
+      b: tr.querySelector('.c_b').value,
+      c: tr.querySelector('.c_c').value,
+      d: tr.querySelector('.c_d').value,
+      m3: tr.querySelector('.c_m3').value,
+      m3source: tr.querySelector('.c_m3').dataset.source || '',
+      note: tr.querySelector('.c_note').value,
+    }))
+  };
+}
+function applyData(data){
+  tbody.innerHTML = '';
+  fields.forEach(f=>{ if(data.fields && data.fields[f]!==undefined) document.getElementById('f_'+f).value = data.fields[f]; });
+  checkFields.forEach(f=>{ document.getElementById('f_'+f).checked = !!(data.checks && data.checks[f]); });
+  const rowCount = (data.rows && data.rows.length) ? data.rows.length : 15;
+  addRows(rowCount);
+  const trs = [...tbody.querySelectorAll('tr')];
+  if(data.rows){
+    data.rows.forEach((r,i)=>{
+      const tr = trs[i]; if(!tr) return;
+      tr.querySelector('.c_no').value = r.no||'';
+      tr.querySelector('.c_pump').value = r.pump||'';
+      tr.querySelector('.c_a').value = r.a||'';
+      tr.querySelector('.c_b').value = r.b||'';
+      tr.querySelector('.c_c').value = r.c||'';
+      tr.querySelector('.c_d').value = r.d||'';
+      tr.querySelector('.c_m3').value = r.m3||'';
+      tr.querySelector('.c_m3').dataset.source = r.m3source || '';
+      tr.querySelector('.c_note').value = r.note||'';
+      recalcRow(tr);
+    });
+  }
+  computeAll();
+  buildSummary();
+}
+
+function storageKey(date){
+  const p = document.getElementById('f_pumpsheet').value;
+  const suffix = (p === '1' || p === '2') ? ('_p'+p) : '';
+  return 'uchisetsu:' + date + suffix;
+}
+
+function saveToStorage(){
+  const date = document.getElementById('f_date').value || todayStr();
+  const key = storageKey(date);
+  try{
+    localStorage.setItem(key, JSON.stringify(collectData()));
+    // keep an index of saved dates so we could list them later if needed
+    const idx = JSON.parse(localStorage.getItem('uchisetsu:_index') || '[]');
+    if(!idx.includes(date)){ idx.push(date); localStorage.setItem('uchisetsu:_index', JSON.stringify(idx)); }
+    document.getElementById('saveStatus').textContent = '保存済み（' + new Date().toLocaleTimeString('ja-JP') + '）';
+  }catch(e){
+    document.getElementById('saveStatus').textContent = '保存に失敗しました';
+  }
+}
+function scheduleSave(){
+  clearTimeout(saveTimer);
+  document.getElementById('saveStatus').textContent = '保存中…';
+  saveTimer = setTimeout(saveToStorage, 800);
+}
+function loadForDate(date){
+  const key = storageKey(date);
+  const raw = localStorage.getItem(key);
+  if(raw){
+    try{
+      applyData(JSON.parse(raw));
+      document.getElementById('saveStatus').textContent = 'この日のデータを読み込みました';
+      updatePumpModeNote();
+      return;
+    }catch(e){ /* corrupt, fall through */ }
+  }
+  applyData({fields:{date}, rows:[]});
+  document.getElementById('saveStatus').textContent = '新規の記録を開始します';
+  updatePumpModeNote();
+}
+function updatePumpModeNote(){
+  const mode = document.getElementById('f_pumpsheet').value;
+  const note = document.getElementById('pumpModeNote');
+  const pumpColHead = document.getElementById('pumpColHead');
+  if(mode === '1' || mode === '2'){
+    note.textContent = `ポンプ${mode==='1'?'①':'②'}専用シートを表示中（この日付・このポンプだけの記録です）`;
+    pumpColHead.style.display = '';
+  } else if(mode === 'mix'){
+    note.textContent = '1枚のシートで、行ごとに①②タグを付けて両ポンプを管理できます';
+    pumpColHead.style.display = '';
+  } else {
+    note.textContent = '';
+    pumpColHead.style.display = '';
+  }
+}
+
+// ---- events ----
+document.getElementById('addRowBtn').addEventListener('click', ()=>{ addRows(5); });
+document.getElementById('clearBtn').addEventListener('click', ()=>{
+  if(confirm('この日の入力内容をすべて消去しますか？')){
+    applyData({fields:{date: document.getElementById('f_date').value}, rows:[]});
+    scheduleSave();
+  }
+});
+document.getElementById('refreshSummaryBtn').addEventListener('click', buildSummary);
+document.getElementById('copyBtn').addEventListener('click', async ()=>{
+  buildSummary();
+  const txt = document.getElementById('summaryText').value;
+  try{
+    await navigator.clipboard.writeText(txt);
+    document.getElementById('copyStatus').textContent = 'コピーしました。LINEに貼り付けて送信してください。';
+  }catch(e){
+    document.getElementById('copyStatus').textContent = 'コピーできませんでした。テキストを長押しして手動でコピーしてください。';
+  }
+});
+fields.forEach(f=>{
+  const el = document.getElementById('f_'+f);
+  el.addEventListener('input', ()=>{ computeAll(); scheduleSave(); });
+  el.addEventListener('change', ()=>{ computeAll(); scheduleSave(); });
+});
+checkFields.forEach(f=>{
+  document.getElementById('f_'+f).addEventListener('change', ()=>{ scheduleSave(); });
+});
+document.getElementById('f_date').addEventListener('change', (e)=>{
+  loadForDate(e.target.value);
+});
+document.getElementById('f_pumpsheet').addEventListener('change', ()=>{
+  loadForDate(document.getElementById('f_date').value || todayStr());
+});
+
+// ---- init ----
+(async function init(){
+  const date = todayStr();
+  document.getElementById('f_date').value = date;
+  await loadForDate(date);
+})();
+</script>
+</body>
+</html>
